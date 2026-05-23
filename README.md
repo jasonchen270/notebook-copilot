@@ -2,27 +2,6 @@
 
 An LLM-powered notebook assistant. Chat with a model, get streaming Python that runs in your browser, persist sessions across devices.
 
-## Architecture
-
-```
-┌──────────────────────────┐         ┌──────────────────────────┐
-│  Next.js 14 + Tailwind   │ ──SSE── │  FastAPI                 │
-│  - Streaming chat UI     │         │  - Auth (JWT + bcrypt)   │
-│  - In-browser notebook   │         │  - Chat sessions         │
-│  - Pyodide Web Worker    │         │  - File uploads          │
-│    (sandboxed exec)      │         │  - LLM proxy w/ streaming│
-└──────────────────────────┘         └────────┬─────────┬───────┘
-                                              │         │
-                                       ┌──────▼──┐  ┌───▼────┐
-                                       │Postgres │  │ Redis  │
-                                       │(state)  │  │(queues)│
-                                       └─────────┘  └────────┘
-```
-
-The Python runtime is **Pyodide running inside a Web Worker** on the client. Code never executes server-side, which removes the largest class of security risk from "run LLM-generated code" products.
-
-The backend owns durable state: user accounts, saved chat threads, uploaded files (parquet/csv ingested then served to the worker), and a Redis-backed queue for any job that genuinely needs to run server-side (large dataset profiling, scheduled cells, etc.).
-
 ## Local development
 
 ```bash
